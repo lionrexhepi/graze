@@ -5,3 +5,5 @@ edition = "2021"
 license = "GPL-3.0"
 
 [dependencies]
+smol_str = "0.3.2"
+thiserror = "2.0.0"
