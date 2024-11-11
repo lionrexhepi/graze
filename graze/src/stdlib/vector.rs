@@ -57,7 +57,7 @@ impl Div<Scalar> for Vector {
     }
 }
 
-fn dot(stack: &mut Stack) -> Result<Value, Error> {
+pub fn dot(stack: &mut Stack) -> Result<Value, Error> {
     reverse_pop!(stack => lhs, rhs);
 
     let (Value::Vector(lhs), Value::Vector(rhs)) = (lhs, rhs) else {
@@ -67,7 +67,7 @@ fn dot(stack: &mut Stack) -> Result<Value, Error> {
     Ok(Value::Scalar(lhs.x * rhs.x + lhs.y * rhs.y))
 }
 
-fn vec2(stack: &mut Stack) -> Result<Value, Error> {
+pub fn vec2(stack: &mut Stack) -> Result<Value, Error> {
     reverse_pop!(stack => x, y);
     let result = match (x, y) {
         (Value::Scalar(x), Value::Scalar(y)) => Value::Vector(Vector { x, y }),

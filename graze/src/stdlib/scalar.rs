@@ -148,7 +148,7 @@ impl Scalar {
     }
 }
 
-fn sqrt(stack: &mut Stack) -> Result<Value, Error> {
+pub fn sqrt(stack: &mut Stack) -> Result<Value, Error> {
     reverse_pop!(stack => x);
     match x {
         Value::Scalar(scalar) => {

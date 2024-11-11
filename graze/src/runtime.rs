@@ -6,7 +6,6 @@ use thiserror::Error;
 use crate::{
     ast::{Argument, ExpressionContent, Instruction, Literal, Program},
     stdlib::{register_stdlib, Point, Scalar, Vector},
-    token::Number,
 };
 
 pub struct Runtime {
@@ -121,6 +120,9 @@ pub struct Stack {
 
 impl Stack {
     fn push(&mut self, value: Value) {
+        if let Value::Void = value {
+            return;
+        }
         self.stack.push(value);
     }
 
@@ -135,6 +137,7 @@ impl Stack {
 
 #[derive(Debug, Clone, Copy)]
 pub enum Value {
+    Void,
     Scalar(Scalar),
     Point(Point),
     Vector(Vector),

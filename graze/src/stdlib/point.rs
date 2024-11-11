@@ -50,7 +50,7 @@ impl From<Vector> for Point {
     }
 }
 
-fn pnt2(stack: &mut Stack) -> Result<Value, Error> {
+pub fn pnt2(stack: &mut Stack) -> Result<Value, Error> {
     reverse_pop!(stack => x, y);
     let (Value::Scalar(x), Value::Scalar(y)) = (x, y) else {
         return Err(Error::TypeError);
@@ -58,7 +58,7 @@ fn pnt2(stack: &mut Stack) -> Result<Value, Error> {
     Ok(Value::Point(Point { x, y }))
 }
 
-fn lvec(stack: &mut Stack) -> Result<Value, Error> {
+pub fn lvec(stack: &mut Stack) -> Result<Value, Error> {
     reverse_pop!(stack => pnt);
     let Value::Point(pnt) = pnt else {
         return Err(Error::TypeError);
@@ -66,7 +66,7 @@ fn lvec(stack: &mut Stack) -> Result<Value, Error> {
     Ok(Value::Vector(Vector { x: pnt.x, y: pnt.y }))
 }
 
-fn x(stack: &mut Stack) -> Result<Value, Error> {
+pub fn x(stack: &mut Stack) -> Result<Value, Error> {
     reverse_pop!(stack => pnt);
     match pnt {
         Value::Point(pnt) => Ok(Value::Scalar(pnt.x)),
@@ -75,7 +75,7 @@ fn x(stack: &mut Stack) -> Result<Value, Error> {
     }
 }
 
-fn y(stack: &mut Stack) -> Result<Value, Error> {
+pub fn y(stack: &mut Stack) -> Result<Value, Error> {
     reverse_pop!(stack => pnt);
     match pnt {
         Value::Point(pnt) => Ok(Value::Scalar(pnt.y)),
@@ -84,9 +84,22 @@ fn y(stack: &mut Stack) -> Result<Value, Error> {
     }
 }
 
+pub fn jump(stack: &mut Stack) -> Result<Value, Error> {
+    let Value::Vector(vec) = super::vector::vec2(stack)? else {
+        unreachable!()
+    };
+    reverse_pop!(stack => previous);
+    let Value::Point(previous) = previous else {
+        return Err(Error::TypeError);
+    };
+
+    Ok(Value::Point(previous + vec))
+}
+
 pub fn register_stdlib(runtime: &mut Runtime) {
     runtime.register("pnt2", pnt2);
     runtime.register("lvec", lvec);
     runtime.register("x", x);
     runtime.register("y", y);
+    runtime.register("jump", jump);
 }
