@@ -5,7 +5,7 @@ use thiserror::Error;
 
 use crate::{
     ast::{Argument, ExpressionContent, Instruction, Literal, Program},
-    stdlib::{register_stdlib, Point, Scalar, Vector},
+    stdlib::{self, Point, Scalar, Vector},
 };
 
 pub struct Runtime {
@@ -24,14 +24,14 @@ impl Default for Runtime {
             draw: Vec::default(),
         };
 
-        register_stdlib(&mut runtime);
+        stdlib::register(&mut runtime);
 
         runtime
     }
 }
 
 impl Runtime {
-    pub fn register(&mut self, name: &str, function: Function) {
+    pub fn define_fn(&mut self, name: &str, function: Function) {
         self.functions.insert(SmolStr::new(name), function);
     }
 

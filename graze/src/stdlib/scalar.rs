@@ -161,6 +161,6 @@ pub fn sqrt(stack: &mut Stack) -> Result<Value, Error> {
         _ => Err(Error::TypeError),
     }
 }
-pub fn register_stdlib(runtime: &mut Runtime) {
-    runtime.register("sqrt", sqrt)
+pub fn register(runtime: &mut Runtime) {
+    runtime.define_fn("sqrt", sqrt)
 }

@@ -96,10 +96,10 @@ pub fn jump(stack: &mut Stack) -> Result<Value, Error> {
     Ok(Value::Point(previous + vec))
 }
 
-pub fn register_stdlib(runtime: &mut Runtime) {
-    runtime.register("pnt2", pnt2);
-    runtime.register("lvec", lvec);
-    runtime.register("x", x);
-    runtime.register("y", y);
-    runtime.register("jump", jump);
+pub fn register(runtime: &mut Runtime) {
+    runtime.define_fn("pnt2", pnt2);
+    runtime.define_fn("lvec", lvec);
+    runtime.define_fn("x", x);
+    runtime.define_fn("y", y);
+    runtime.define_fn("jump", jump);
 }

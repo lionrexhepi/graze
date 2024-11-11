@@ -78,7 +78,7 @@ pub fn vec2(stack: &mut Stack) -> Result<Value, Error> {
     Ok(result)
 }
 
-pub fn register_stdlib(runtime: &mut Runtime) {
-    runtime.register("dot", dot);
-    runtime.register("vec2", vec2);
+pub fn register(runtime: &mut Runtime) {
+    runtime.define_fn("dot", dot);
+    runtime.define_fn("vec2", vec2);
 }
