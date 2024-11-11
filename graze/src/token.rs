@@ -16,15 +16,26 @@ pub struct Token {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Payload {
+    /// Unqualified name
     Name(SmolStr),
+    /// Name prefixed with $ for variable access
     Variable(SmolStr),
+    /// Number literal
     LitNumber(Number),
+    /// "let"
     Let,
+    /// =>
     Pipe,
+    /// ;
     Concat,
+    /// (
     ParenL,
+    /// )
     ParenR,
+    /// A newline.
     Newline,
+    /// A bang (!) followed by a newline.
+    VoidNewline,
     EOF,
 }
 
@@ -56,6 +67,8 @@ pub enum ErrorKind {
     InvalidLiteral,
     #[error("An equals sign '=' must be followed by a '>' to make a pipe.")]
     InvalidPipe,
+    #[error("Expected a newline after a '!' to make it a 'void' token.")]
+    ExpectedNewlineAfterBang,
 }
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
@@ -121,7 +134,8 @@ impl<'s> StringTokenizer<'s> {
     fn parse_name(&mut self) -> Option<SmolStr> {
         let mut first = true;
         let name = self.take_while(|c| {
-            let valid = !matches!(c, ';' | '(' | ')' | '\'' | '$') && !c.is_whitespace();
+            let valid =
+                !matches!(c, ';' | '(' | ')' | '\'' | '$' | '=' | '!') && !c.is_whitespace();
             if first {
                 first = false;
                 valid && !c.is_numeric()
@@ -183,6 +197,13 @@ impl<'s> TokenSource for StringTokenizer<'s> {
                         return Err(self.error(ErrorKind::InvalidCRLFSequence));
                     };
                     Payload::Newline
+                }
+                '!' => {
+                    self.advance();
+                    let Some('\n') = self.advance() else {
+                        return Err(self.error(ErrorKind::ExpectedNewlineAfterBang));
+                    };
+                    Payload::VoidNewline
                 }
                 ';' => Payload::Concat,
                 '=' => {
