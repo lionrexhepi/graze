@@ -45,9 +45,6 @@ pub enum Number {
     Float(f64),
 }
 
-/// For AST/Tokens the exact f64 value shouldnt be important
-impl Eq for Number {}
-
 #[derive(Debug, Clone, Copy, Error)]
 #[error("Error tokenizing input at {at}: {kind:?}")]
 pub struct Error {

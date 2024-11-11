@@ -13,14 +13,14 @@ pub struct Instruction {
     pub expressions: Vec<Expression>,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq)]
 pub struct Expression {
     pub content: ExpressionContent,
     pub draw_result: bool,
     pub position: Position,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq)]
 pub enum ExpressionContent {
     Literal(Literal),
     Variable(SmolStr),
@@ -34,14 +34,14 @@ pub enum ExpressionContent {
     },
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq)]
 pub enum Argument {
     Variable(SmolStr),
     Literal(Literal),
     Parenthesized(Box<ExpressionContent>),
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq)]
 pub enum Literal {
     Number(Number),
 }
@@ -59,7 +59,7 @@ impl Error {
     }
 }
 
-#[derive(Debug, Error, PartialEq, Eq)]
+#[derive(Debug, Error, PartialEq)]
 pub enum ErrorKind {
     #[error("Error parsing token: {0}")]
     InvalidToken(#[from] token::ErrorKind),
