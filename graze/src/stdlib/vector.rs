@@ -2,7 +2,7 @@ use std::ops::{Add, Div, Mul, Sub};
 
 use crate::{
     reverse_pop,
-    runtime::{Error, Stack, Value},
+    runtime::{Error, Runtime, Stack, Value},
 };
 
 use super::Scalar;
@@ -57,24 +57,28 @@ impl Div<Scalar> for Vector {
     }
 }
 
-pub fn dot(stack: &mut Stack) -> Result<Value, Error> {
+fn dot(stack: &mut Stack) -> Result<Value, Error> {
     reverse_pop!(stack => lhs, rhs);
 
     let (Value::Vector(lhs), Value::Vector(rhs)) = (lhs, rhs) else {
-        return Err(Error::InvalidType);
+        return Err(Error::TypeError);
     };
 
     Ok(Value::Scalar(lhs.x * rhs.x + lhs.y * rhs.y))
 }
 
-pub fn vec2(stack: &mut Stack) -> Result<Value, Error> {
+fn vec2(stack: &mut Stack) -> Result<Value, Error> {
     reverse_pop!(stack => x, y);
-
     let result = match (x, y) {
         (Value::Scalar(x), Value::Scalar(y)) => Value::Vector(Vector { x, y }),
 
-        _ => return Err(Error::InvalidType),
+        _ => return Err(Error::TypeError),
     };
 
     Ok(result)
+}
+
+pub fn register_stdlib(runtime: &mut Runtime) {
+    runtime.register("dot", dot);
+    runtime.register("vec2", vec2);
 }

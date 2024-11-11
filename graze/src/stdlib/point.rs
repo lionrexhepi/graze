@@ -1,3 +1,8 @@
+use crate::{
+    reverse_pop,
+    runtime::{Error, Runtime, Stack, Value},
+};
+
 use super::{Scalar, Vector};
 
 #[derive(Debug, Clone, Copy)]
@@ -45,10 +50,43 @@ impl From<Vector> for Point {
     }
 }
 
-pub fn point(x: Scalar, y: Scalar) -> Point {
-    Point { x, y }
+fn pnt2(stack: &mut Stack) -> Result<Value, Error> {
+    reverse_pop!(stack => x, y);
+    let (Value::Scalar(x), Value::Scalar(y)) = (x, y) else {
+        return Err(Error::TypeError);
+    };
+    Ok(Value::Point(Point { x, y }))
 }
 
-pub fn vector(p: Point) -> Vector {
-    Vector { x: p.x, y: p.y }
+fn lvec(stack: &mut Stack) -> Result<Value, Error> {
+    reverse_pop!(stack => pnt);
+    let Value::Point(pnt) = pnt else {
+        return Err(Error::TypeError);
+    };
+    Ok(Value::Vector(Vector { x: pnt.x, y: pnt.y }))
+}
+
+fn x(stack: &mut Stack) -> Result<Value, Error> {
+    reverse_pop!(stack => pnt);
+    match pnt {
+        Value::Point(pnt) => Ok(Value::Scalar(pnt.x)),
+        Value::Vector(vec) => Ok(Value::Scalar(vec.x)),
+        _ => Err(Error::TypeError),
+    }
+}
+
+fn y(stack: &mut Stack) -> Result<Value, Error> {
+    reverse_pop!(stack => pnt);
+    match pnt {
+        Value::Point(pnt) => Ok(Value::Scalar(pnt.y)),
+        Value::Vector(vec) => Ok(Value::Scalar(vec.y)),
+        _ => Err(Error::TypeError),
+    }
+}
+
+pub fn register_stdlib(runtime: &mut Runtime) {
+    runtime.register("pnt2", pnt2);
+    runtime.register("lvec", lvec);
+    runtime.register("x", x);
+    runtime.register("y", y);
 }

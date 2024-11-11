@@ -5,7 +5,7 @@ use thiserror::Error;
 
 use crate::{
     ast::{Argument, ExpressionContent, Instruction, Literal, Program},
-    stdlib::{Point, Scalar, Vector},
+    stdlib::{register_stdlib, Point, Scalar, Vector},
     token::Number,
 };
 
@@ -18,19 +18,21 @@ pub struct Runtime {
 
 impl Default for Runtime {
     fn default() -> Self {
-        let runtime = Self {
+        let mut runtime = Self {
             stack: Stack::default(),
             variables: HashMap::default(),
             functions: HashMap::default(),
             draw: Vec::default(),
         };
 
+        register_stdlib(&mut runtime);
+
         runtime
     }
 }
 
 impl Runtime {
-    fn register_function(&mut self, name: &str, function: Function) {
+    pub fn register(&mut self, name: &str, function: Function) {
         self.functions.insert(SmolStr::new(name), function);
     }
 
@@ -166,7 +168,11 @@ pub enum Error {
     #[error("Function {0} not in scope")]
     FunctionNotFound(SmolStr),
     #[error("Invalid type for operation")]
-    InvalidType,
+    TypeError,
     #[error("Integer literal too large to fit in a 64-bit integer")]
     IntLiteralTooLarge,
+    #[error("Too few arguments for this function call")]
+    MissingArgument,
+    #[error("Non-real result")]
+    NonRealResult,
 }

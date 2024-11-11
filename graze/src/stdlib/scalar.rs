@@ -1,6 +1,10 @@
 use std::ops::*;
 
-use crate::{runtime::Error, token::Number};
+use crate::{
+    reverse_pop,
+    runtime::{Error, Runtime, Stack, Value},
+    token::Number,
+};
 
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy)]
@@ -142,4 +146,21 @@ impl Scalar {
             ScalarInner::Float(f) => Scalar(ScalarInner::Float(f.sqrt())),
         }
     }
+}
+
+fn sqrt(stack: &mut Stack) -> Result<Value, Error> {
+    reverse_pop!(stack => x);
+    match x {
+        Value::Scalar(scalar) => {
+            if f64::from(scalar) < 0.0 {
+                Ok(Value::Scalar(scalar.sqrt()))
+            } else {
+                Err(Error::NonRealResult)
+            }
+        }
+        _ => Err(Error::TypeError),
+    }
+}
+pub fn register_stdlib(runtime: &mut Runtime) {
+    runtime.register("sqrt", sqrt)
 }
