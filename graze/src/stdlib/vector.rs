@@ -7,10 +7,10 @@ use crate::{
 
 use super::Scalar;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Vector {
-    pub(super) x: Scalar,
-    pub(super) y: Scalar,
+    pub x: Scalar,
+    pub y: Scalar,
 }
 
 impl Add for Vector {
@@ -81,4 +81,31 @@ pub fn vec2(stack: &mut Stack) -> Result<Value, Error> {
 pub fn register(runtime: &mut Runtime) {
     runtime.define_fn("dot", dot);
     runtime.define_fn("vec2", vec2);
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::stdlib::test_helpers::*;
+
+    #[test]
+    fn test_dot() {
+        #[rustfmt::skip]
+        let mut stack = dummy_stack([
+
+            vector(1, 2), vector(3, 4),
+        ]);
+
+        assert_values_eq(dot(&mut stack), scalar(11));
+    }
+
+    #[test]
+    fn test_vec2() {
+        #[rustfmt::skip]
+        let mut stack = dummy_stack([
+            scalar(1), scalar(2),
+        ]);
+
+        assert_values_eq(vec2(&mut stack), vector(1, 2));
+    }
 }

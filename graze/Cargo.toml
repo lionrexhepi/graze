@@ -6,4 +6,5 @@ license = "GPL-3.0"
 
 [dependencies]
 smol_str = "0.3.2"
+svg = "0.18.0"
 thiserror = "2.0.0"

@@ -5,10 +5,10 @@ use crate::{
 
 use super::{Scalar, Vector};
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Point {
-    pub(super) x: Scalar,
-    pub(super) y: Scalar,
+    pub x: Scalar,
+    pub y: Scalar,
 }
 
 impl std::ops::Add<Vector> for Point {
@@ -102,4 +102,70 @@ pub fn register(runtime: &mut Runtime) {
     runtime.define_fn("x", x);
     runtime.define_fn("y", y);
     runtime.define_fn("jump", jump);
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::stdlib::test_helpers::*;
+
+    #[test]
+    fn test_pnt2() {
+        #[rustfmt::skip]
+        let mut stack = dummy_stack(
+            [
+                scalar(3), vector(4, 5),
+                scalar(1), scalar(2),
+            ]
+        );
+
+        assert_values_eq(pnt2(&mut stack), point(1, 2));
+        assert_eq!(pnt2(&mut stack), Err(Error::TypeError))
+    }
+
+    #[test]
+    fn test_lvec() {
+        #[rustfmt::skip]
+        let mut stack = dummy_stack(
+            [
+                vector(3, 4),
+                point(1, 2),
+            ]
+        );
+
+        assert_values_eq(lvec(&mut stack), vector(1, 2));
+        assert_eq!(lvec(&mut stack), Err(Error::TypeError))
+    }
+
+    #[test]
+    fn test_x() {
+        #[rustfmt::skip]
+        let mut stack = dummy_stack(
+            [
+                scalar(1),
+                vector(3, 4),
+                point(1, 2),
+            ]
+        );
+
+        assert_values_eq(x(&mut stack), scalar(1));
+        assert_values_eq(x(&mut stack), scalar(3));
+        assert_eq!(x(&mut stack), Err(Error::TypeError))
+    }
+
+    #[test]
+    fn test_y() {
+        #[rustfmt::skip]
+        let mut stack = dummy_stack(
+            [
+                scalar(2),
+                vector(3, 4),
+                point(1, 2),
+            ]
+        );
+
+        assert_values_eq(y(&mut stack), scalar(2));
+        assert_values_eq(y(&mut stack), scalar(4));
+        assert_eq!(y(&mut stack), Err(Error::TypeError))
+    }
 }

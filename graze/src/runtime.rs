@@ -5,6 +5,7 @@ use thiserror::Error;
 
 use crate::{
     ast::{Argument, ExpressionContent, Instruction, Literal, Program},
+    output::DrawCommand,
     stdlib::{self, Point, Scalar, Vector},
 };
 
@@ -45,10 +46,14 @@ impl Runtime {
     fn execute_instruction(&mut self, instruction: Instruction) -> Result<(), Error> {
         for expression in instruction.expressions {
             let value = self.execute_expression(expression.content)?;
-            if expression.draw_result {
-                self.draw.push(DrawCommand::new(value))
-            }
             self.stack.push(value);
+            if !expression.draw_result {
+                continue;
+            }
+
+            if let Some(cmd) = value.into() {
+                self.draw.push(cmd);
+            }
         }
 
         self.stack.clear();
@@ -119,7 +124,7 @@ pub struct Stack {
 }
 
 impl Stack {
-    fn push(&mut self, value: Value) {
+    pub fn push(&mut self, value: Value) {
         if let Value::Void = value {
             return;
         }
@@ -135,7 +140,7 @@ impl Stack {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Value {
     Void,
     Scalar(Scalar),
@@ -146,21 +151,7 @@ pub enum Value {
 
 type Function = fn(&mut Stack) -> Result<Value, Error>;
 
-pub enum DrawCommand {
-    Line(Point, Vector),
-    Circle(Point, f64),
-}
-
-impl DrawCommand {
-    fn new(value: Value) -> Self {
-        match value {
-            Value::Line(point, vector) => DrawCommand::Line(point, vector),
-            _ => todo!(),
-        }
-    }
-}
-
-#[derive(Debug, Error)]
+#[derive(Debug, Error, PartialEq, Eq)]
 pub enum Error {
     #[error("Fatal: stack underflow")]
     StackUnderflow,

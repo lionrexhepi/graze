@@ -14,7 +14,7 @@ pub struct Token {
     pub position: Position,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Payload {
     /// Unqualified name
     Name(SmolStr),
