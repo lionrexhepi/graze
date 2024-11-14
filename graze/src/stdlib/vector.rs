@@ -86,7 +86,7 @@ pub fn register(runtime: &mut Runtime) {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::stdlib::test_helpers::*;
+    use crate::util::test_helpers::*;
 
     #[test]
     fn test_dot() {

@@ -149,7 +149,7 @@ pub fn sqrt(stack: &mut Stack) -> Result<Value, Error> {
     reverse_pop!(stack => x);
     match x {
         Value::Scalar(scalar) => {
-            if f64::from(scalar) < 0.0 {
+            if dbg!(f64::from(scalar)) >= 0.0 {
                 Ok(Value::Scalar(scalar.sqrt()))
             } else {
                 Err(Error::NonRealResult)
@@ -165,7 +165,7 @@ pub fn register(runtime: &mut Runtime) {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::stdlib::test_helpers::*;
+    use crate::util::test_helpers::*;
 
     #[test]
     fn test_sqrt() {
@@ -176,16 +176,8 @@ mod test {
             scalar(9)
         ]);
 
-        assert_values_eq(sqrt(&mut stack), scalar(3));
-        assert_eq!(
-            sqrt(&mut stack),
-            Ok(Value::Scalar(Scalar(ScalarInner::Float(
-                2.8284271247461903
-            ))))
-        );
-        assert_eq!(
-            sqrt(&mut stack),
-            Ok(Value::Scalar(Scalar(ScalarInner::Float(3.0))))
-        );
+        assert_values_eq(sqrt(&mut stack), scalar(3.0));
+        assert_values_eq(sqrt(&mut stack), scalar(f64::sqrt(8.0)));
+        assert_eq!(sqrt(&mut stack), Err(Error::NonRealResult));
     }
 }

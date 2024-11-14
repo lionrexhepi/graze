@@ -20,10 +20,10 @@ pub enum Payload {
     Name(SmolStr),
     /// Name prefixed with $ for variable access
     Variable(SmolStr),
+    /// Builtins
+    Keyword(Keyword),
     /// Number literal
     LitNumber(Number),
-    /// "let"
-    Let,
     /// =>
     Pipe,
     /// ;
@@ -37,6 +37,12 @@ pub enum Payload {
     /// A bang (!) followed by a newline.
     VoidNewline,
     EOF,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum Keyword {
+    Let,
+    Screen,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -57,15 +63,15 @@ pub enum ErrorKind {
     #[error("Invalid CLRF sequence")]
     InvalidCRLFSequence,
     #[error("Expected a variable name")]
-    EmptyVariableName,
-    #[error("Expected a function name")]
-    EmptyFunctionName,
+    ExpectedIdentifier,
     #[error("Invalid literal")]
     InvalidLiteral,
     #[error("An equals sign '=' must be followed by a '>' to make a pipe.")]
     InvalidPipe,
     #[error("Expected a newline after a '!' to make it a 'void' token.")]
     ExpectedNewlineAfterBang,
+    #[error("'let' must not be qualified with a $ or #.")]
+    InvalidKeyword,
 }
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
@@ -212,7 +218,6 @@ impl<'s> TokenSource for StringTokenizer<'s> {
                 }
                 '(' => Payload::ParenL,
                 ')' => Payload::ParenR,
-
                 other => {
                     if other.is_whitespace() {
                         self.advance();
@@ -227,13 +232,7 @@ impl<'s> TokenSource for StringTokenizer<'s> {
             return Ok(self.token(single));
         };
 
-        if first == '$' {
-            self.advance();
-            self.parse_name()
-                .map(Payload::Variable)
-                .map(|var| self.token(var))
-                .ok_or_else(|| self.error(ErrorKind::EmptyVariableName))
-        } else if first.is_ascii_digit() {
+        if first.is_ascii_digit() {
             let lit = self
                 .parse_integer()
                 .expect("At least 1 digit is confirmed available");
@@ -243,17 +242,31 @@ impl<'s> TokenSource for StringTokenizer<'s> {
             };
 
             Ok(self.token(Payload::LitNumber(Number::Integer(value))))
+        } else if let '#' = first {
+            self.advance();
+            let name = self
+                .parse_name()
+                .ok_or_else(|| self.error(ErrorKind::ExpectedIdentifier))?;
+
+            let keyword = match name.as_str() {
+                "let" => Keyword::Let,
+                "screen" => Keyword::Screen,
+                _ => return Err(self.error(ErrorKind::InvalidKeyword)),
+            };
+            Ok(self.token(Payload::Keyword(keyword)))
         } else {
-            self.parse_name()
-                .map(|func| {
-                    let payload = if func == "let" {
-                        Payload::Let
-                    } else {
-                        Payload::Name(func)
-                    };
-                    self.token(payload)
-                })
-                .ok_or_else(|| self.error(ErrorKind::EmptyFunctionName))
+            let make_payload = match first {
+                '$' => {
+                    self.advance();
+                    Payload::Variable
+                }
+
+                _ => Payload::Name,
+            };
+            let name = self
+                .parse_name()
+                .ok_or_else(|| self.error(ErrorKind::ExpectedIdentifier))?;
+            Ok(self.token(make_payload(name)))
         }
     }
 

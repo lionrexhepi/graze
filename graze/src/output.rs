@@ -1,5 +1,3 @@
-pub mod svg;
-
 use crate::{
     runtime::Value,
     stdlib::{Point, Scalar, Vector},
@@ -20,12 +18,10 @@ impl From<Value> for Option<DrawCommand> {
     }
 }
 
-pub trait Screen {
-    type Output;
-
+pub trait DrawBuffer {
     fn reset(&mut self);
 
     fn draw(&mut self, command: DrawCommand);
 
-    fn finish(&mut self) -> Self::Output;
+    fn flush(&mut self);
 }

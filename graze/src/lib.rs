@@ -3,3 +3,4 @@ pub mod output;
 pub mod runtime;
 pub mod stdlib;
 pub mod token;
+mod util;

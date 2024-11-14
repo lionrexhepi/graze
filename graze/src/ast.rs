@@ -1,7 +1,7 @@
 use smol_str::SmolStr;
 use thiserror::Error;
 
-use crate::token::{self, Number, Payload, Position, Token, TokenSource};
+use crate::token::{self, Keyword, Number, Payload, Position, Token, TokenSource};
 
 #[derive(Debug, Default)]
 pub struct Program {
@@ -154,7 +154,7 @@ where
             }
             ExpressionContent::FunctionCall { name, args }
         }
-        Payload::Let => {
+        Payload::Keyword(Keyword::Let) => {
             let Token { payload, position } = source.read_token()?;
 
             let Payload::Name(name) = payload else {
@@ -165,6 +165,7 @@ where
 
             ExpressionContent::Let { name, init }
         }
+        Payload::Keyword(Keyword::Screen) => todo!(),
         Payload::Newline | Payload::EOF => return Ok(None),
         other => return Err(Error::new(position, ErrorKind::UnexpectedToken(other))),
     };
@@ -247,7 +248,7 @@ mod test {
 
     #[test]
     fn test_parse_let_statement() {
-        let input = "let x 42";
+        let input = "#let x 42";
         let mut source = StringTokenSource::new(&input);
         let result = parse_expr(&mut source).unwrap();
         assert_eq!(
@@ -274,7 +275,7 @@ mod test {
 
     #[test]
     fn test_parse_instruction() {
-        let input = "42 => let x";
+        let input = "42 => #let x";
         let mut source = StringTokenSource::new(&input);
         let result = parse_instruction(&mut source).unwrap();
         assert!(result.is_some());
@@ -296,7 +297,7 @@ mod test {
 
     #[test]
     fn test_parse_file() {
-        let input = "42 ; print \nfoo 42 $x\nlet y 42";
+        let input = "42 ; print \nfoo 42 $x\n#let y 42";
         let mut source = StringTokenSource::new(&input);
         let result = parse_file(&mut source).unwrap();
         assert_eq!(result.instructions.len(), 3);
@@ -317,7 +318,7 @@ mod test {
 
     #[test]
     fn test_expected_identifier_error() {
-        let input = "let 42";
+        let input = "#let 42";
         let mut source = StringTokenSource::new(&input);
         let result = parse_expr(&mut source);
         assert!(result.is_err());
