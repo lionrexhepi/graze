@@ -45,7 +45,8 @@ pub fn div(stack: &mut Stack) -> Result<Value, Error> {
     }
 }
 
-pub fn register(runtime: &mut Runtime) {
+pub fn register<Backend>(runtime: &mut Runtime<Backend>) {
+
     runtime.define_fn("add", add);
     runtime.define_fn("sub", sub);
     runtime.define_fn("mul", mul);

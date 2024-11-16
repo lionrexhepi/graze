@@ -6,6 +6,7 @@ use crate::{
 pub enum DrawCommand {
     Line(Point, Vector),
     Circle(Point, Scalar),
+    Resize { x: Scalar, y: Scalar },
 }
 
 impl From<Value> for Option<DrawCommand> {

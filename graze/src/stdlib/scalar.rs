@@ -158,7 +158,7 @@ pub fn sqrt(stack: &mut Stack) -> Result<Value, Error> {
         _ => Err(Error::TypeError),
     }
 }
-pub fn register(runtime: &mut Runtime) {
+pub fn register<Backend>(runtime: &mut Runtime<Backend>) {
     runtime.define_fn("sqrt", sqrt)
 }
 

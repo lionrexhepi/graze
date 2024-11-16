@@ -96,7 +96,7 @@ pub fn jump(stack: &mut Stack) -> Result<Value, Error> {
     Ok(Value::Point(previous + vec))
 }
 
-pub fn register(runtime: &mut Runtime) {
+pub fn register<Backend>(runtime: &mut Runtime<Backend>) {
     runtime.define_fn("pnt2", pnt2);
     runtime.define_fn("lvec", lvec);
     runtime.define_fn("x", x);

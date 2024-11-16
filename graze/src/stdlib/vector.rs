@@ -78,7 +78,7 @@ pub fn vec2(stack: &mut Stack) -> Result<Value, Error> {
     Ok(result)
 }
 
-pub fn register(runtime: &mut Runtime) {
+pub fn register<Backend>(runtime: &mut Runtime<Backend>) {
     runtime.define_fn("dot", dot);
     runtime.define_fn("vec2", vec2);
 }

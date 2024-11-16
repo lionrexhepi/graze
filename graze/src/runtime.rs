@@ -5,24 +5,27 @@ use thiserror::Error;
 
 use crate::{
     ast::{Argument, ExpressionContent, Instruction, Literal, Program},
-    output::DrawCommand,
+    output::{DrawBuffer, DrawCommand},
     stdlib::{self, Point, Scalar, Vector},
 };
 
-pub struct Runtime {
+pub struct Runtime<Backend> {
     stack: Stack,
     variables: HashMap<SmolStr, Value>,
     functions: HashMap<SmolStr, Function>,
-    draw: Vec<DrawCommand>,
+    draw: Backend,
 }
 
-impl Default for Runtime {
+impl<Backend> Default for Runtime<Backend>
+where
+    Backend: DrawBuffer + Default,
+{
     fn default() -> Self {
         let mut runtime = Self {
             stack: Stack::default(),
             variables: HashMap::default(),
             functions: HashMap::default(),
-            draw: Vec::default(),
+            draw: Backend::default(),
         };
 
         stdlib::register(&mut runtime);
@@ -31,11 +34,16 @@ impl Default for Runtime {
     }
 }
 
-impl Runtime {
+impl<Backend> Runtime<Backend> {
     pub fn define_fn(&mut self, name: &str, function: Function) {
         self.functions.insert(SmolStr::new(name), function);
     }
+}
 
+impl<Backend> Runtime<Backend>
+where
+    Backend: DrawBuffer,
+{
     pub fn execute(&mut self, program: Program) -> Result<(), Error> {
         for instruction in program.instructions {
             self.execute_instruction(instruction)?;
@@ -52,7 +60,7 @@ impl Runtime {
             }
 
             if let Some(cmd) = value.into() {
-                self.draw.push(cmd);
+                self.draw.draw(cmd);
             }
         }
 
@@ -96,6 +104,18 @@ impl Runtime {
                 self.variables.insert(name, value);
                 Ok(value)
             }
+            ExpressionContent::Screen(argument, argument1) => {
+                let (Value::Scalar(x), Value::Scalar(y)) = (
+                    self.execute_argument(argument)?,
+                    self.execute_argument(argument1)?,
+                ) else {
+                    return Err(Error::InvalidArgument);
+                };
+
+                self.draw.draw(DrawCommand::Resize { x, y });
+
+                Ok(Value::Void)
+            }
         }
     }
 
@@ -113,8 +133,8 @@ impl Runtime {
         }
     }
 
-    pub fn finish(self) -> Vec<DrawCommand> {
-        self.draw
+    pub fn finish(mut self) {
+        self.draw.flush()
     }
 }
 

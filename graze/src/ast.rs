@@ -32,6 +32,7 @@ pub enum ExpressionContent {
         name: SmolStr,
         init: Option<Argument>,
     },
+    Screen(Argument, Argument),
 }
 
 #[derive(Debug, PartialEq)]

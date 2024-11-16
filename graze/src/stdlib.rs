@@ -20,10 +20,9 @@ macro_rules! reverse_pop {
      };
  }
 
-pub fn register(runtime: &mut Runtime) {
+pub fn register<Backend>(runtime: &mut Runtime<Backend>) {
     basic::register(runtime);
     vector::register(runtime);
     point::register(runtime);
     scalar::register(runtime);
 }
-
