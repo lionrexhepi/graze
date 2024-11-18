@@ -166,7 +166,14 @@ where
 
             ExpressionContent::Let { name, init }
         }
-        Payload::Keyword(Keyword::Screen) => todo!(),
+        Payload::Keyword(Keyword::Screen) => {
+            let x = parse_arg(source)
+                .and_then(|x| x.ok_or(Error::new(position, ErrorKind::ExpectedExpression)))?;
+            let y = parse_arg(source)
+                .and_then(|y| y.ok_or(Error::new(position, ErrorKind::ExpectedExpression)))?;
+
+            ExpressionContent::Screen(x, y)
+        }
         Payload::Newline | Payload::EOF => return Ok(None),
         other => return Err(Error::new(position, ErrorKind::UnexpectedToken(other))),
     };

@@ -7,6 +7,7 @@ use graze::{
 
 fn main() {
     let program = r#"
+        #screen 500 500
         pnt2 10 10; pnt2 20 20;line
         "#;
     let mut tokens = StringTokenizer::new(&program);
