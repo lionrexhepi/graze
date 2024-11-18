@@ -1,3 +1,6 @@
+#[cfg(feature = "svg")]
+pub mod svg;
+
 use crate::{
     runtime::Value,
     stdlib::{Point, Scalar, Vector},

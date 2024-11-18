@@ -78,9 +78,22 @@ pub fn vec2(stack: &mut Stack) -> Result<Value, Error> {
     Ok(result)
 }
 
+pub fn line(stack: &mut Stack) -> Result<Value, Error> {
+    reverse_pop!(stack => p1, p2);
+    let result = match (p1, p2) {
+        (Value::Point(p1), Value::Vector(v)) => Value::Line(p1, v),
+        (Value::Point(p1), Value::Point(p2)) => Value::Line(p1, p2 - p1),
+
+        _ => return Err(Error::TypeError),
+    };
+
+    Ok(result)
+}
+
 pub fn register<Backend>(runtime: &mut Runtime<Backend>) {
     runtime.define_fn("dot", dot);
     runtime.define_fn("vec2", vec2);
+    runtime.define_fn("line", line);
 }
 
 #[cfg(test)]

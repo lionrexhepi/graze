@@ -4,6 +4,13 @@ version = "0.1.0"
 edition = "2021"
 license = "GPL-3.0"
 
+
 [dependencies]
 smol_str = "0.3.2"
 thiserror = "2.0.0"
+unwrap_todo = "0.1.2"
+xml_dom = { version = "0.2.8", optional = true, default-features = false }
+
+[features]
+default = ["svg"]
+svg = ["dep:xml_dom"]
