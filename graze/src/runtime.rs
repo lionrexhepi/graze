@@ -112,7 +112,10 @@ where
                     return Err(Error::InvalidArgument);
                 };
 
-                self.draw.draw(DrawCommand::Resize { x, y });
+                self.draw.draw(DrawCommand::Resize {
+                    x: x.into(),
+                    y: y.into(),
+                });
 
                 Ok(Value::Void)
             }

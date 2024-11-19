@@ -36,7 +36,7 @@ pub enum Payload {
     Newline,
     /// A bang (!) followed by a newline.
     VoidNewline,
-    EOF,
+    Eof,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -190,7 +190,7 @@ impl<'s> TokenSource for StringTokenizer<'s> {
     fn read_token(&mut self) -> Result<Token, Error> {
         let first = loop {
             let Some(next) = self.current() else {
-                return Ok(self.token(Payload::EOF));
+                return Ok(self.token(Payload::Eof));
             };
             let single = match next {
                 '\n' => Payload::Newline,
@@ -320,7 +320,7 @@ mod test {
         assert_payload!(tokenizer matches Payload::ParenL);
         assert_payload!(tokenizer matches Payload::ParenR);
         assert_payload!(tokenizer matches Payload::Pipe);
-        assert_payload!(tokenizer matches Payload::EOF);
+        assert_payload!(tokenizer matches Payload::Eof);
     }
 
     #[test]

@@ -111,7 +111,7 @@ where
         } = source.read_token()?;
         let draw_result = match join {
             Payload::Pipe => false,
-            Payload::Concat | Payload::Newline | Payload::EOF => true,
+            Payload::Concat | Payload::Newline | Payload::Eof => true,
             other => return Err(Error::new(end, ErrorKind::UnexpectedToken(other))),
         };
 
@@ -121,13 +121,13 @@ where
             position,
         });
 
-        if let Payload::Newline | Payload::EOF = join {
+        if let Payload::Newline | Payload::Eof = join {
             break;
         }
     }
 
     if result.expressions.is_empty() {
-        if source.peek_token()?.payload == Payload::EOF {
+        if source.peek_token()?.payload == Payload::Eof {
             Ok(None)
         } else {
             // Empty line, parse the next one
@@ -174,7 +174,7 @@ where
 
             ExpressionContent::Screen(x, y)
         }
-        Payload::Newline | Payload::EOF => return Ok(None),
+        Payload::Newline | Payload::Eof => return Ok(None),
         other => return Err(Error::new(position, ErrorKind::UnexpectedToken(other))),
     };
 
